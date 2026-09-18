@@ -22,6 +22,17 @@ for f in /usr/share/pixmaps/debian-logo.png /usr/share/pixmaps/debian-logo.bmp \
     [ -e "$f" ] && cp /usr/share/pixmaps/vertex-logo.png "$f"
 done
 
+# The Settings "About" page's OS logo is the one exception LOGO= doesn't
+# cover: Debian's gnome-control-center is built with -Ddistributor_logo and
+# -Ddark_mode_distributor_logo both pointing at this exact path (confirmed
+# from debian/rules upstream at salsa.debian.org/gnome-team/gnome-control-center),
+# which gtk_picture_set_filename() loads directly, bypassing os-release
+# entirely. Overwrite it in place with Vertex's mark (kept as an actual SVG
+# since that's the format gnome-control-center expects here).
+mkdir -p /usr/share/icons/vendor/scalable/emblems
+cp /usr/share/vertex/vertex-mark.svg \
+    /usr/share/icons/vendor/scalable/emblems/emblem-vendor.svg
+
 # Classic Debian "distributor-logo" alternative — some tools check this
 # instead of (or in addition to) os-release's LOGO= key.
 update-alternatives --install /usr/share/pixmaps/distributor-logo.png \

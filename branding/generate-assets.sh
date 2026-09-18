@@ -70,6 +70,43 @@ if [[ -f "$LOGO" ]]; then
     # GNOME About / os-logo used by gnome-control-center "About" panel
     mkdir -p "$CHROOT/usr/share/pixmaps"
     resize "$LOGO" "$CHROOT/usr/share/pixmaps/vertex-logo-text.png" "512x512"
+
+    # A couple of spots need an actual .svg file (Settings > About's logo,
+    # the GRUB boot menu background). We don't have vector source art, so
+    # wrap a downscaled copy of logo.png as embedded base64 image data —
+    # that keeps them pixel-matched to logo.png instead of a hand-drawn
+    # approximation, and they regenerate automatically whenever you replace
+    # logo.png and rerun this script.
+    mkdir -p "$CHROOT/usr/share/vertex"
+    tmp_mark="$(mktemp --suffix=.png)"
+    "${CONVERT[@]}" "$LOGO" -resize "512x512" -strip "$tmp_mark"
+    b64_mark="$(base64 -w0 "$tmp_mark")"
+    cat > "$CHROOT/usr/share/vertex/vertex-mark.svg" <<EOF
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <image width="512" height="512" href="data:image/png;base64,${b64_mark}"/>
+</svg>
+EOF
+    rm -f "$tmp_mark"
+    echo "==> Generated vertex-mark.svg from logo.png"
+
+    mkdir -p "$ROOT/config/bootloaders"
+    tmp_splash="$(mktemp --suffix=.png)"
+    "${CONVERT[@]}" "$LOGO" -resize "480x480" -strip "$tmp_splash"
+    b64_splash="$(base64 -w0 "$tmp_splash")"
+    cat > "$ROOT/config/bootloaders/splash.svg" <<EOF
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#110c22"/>
+      <stop offset="100%" stop-color="#2e1065"/>
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <image x="720" y="300" width="480" height="480" href="data:image/png;base64,${b64_splash}"/>
+</svg>
+EOF
+    rm -f "$tmp_splash"
+    echo "==> Generated GRUB splash.svg from logo.png"
 else
     echo "==> Skipping logo.png (not found in $SOURCES)"
 fi

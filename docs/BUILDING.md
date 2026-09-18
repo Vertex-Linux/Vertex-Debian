@@ -114,19 +114,13 @@ system. Delete that `.qcow2` file to start over with a fresh disk.
   throbber; add `throbber-*.png` frames to
   `config/includes.chroot/usr/share/plymouth/themes/vertex/` for a fully
   custom one.
-- **Settings → About's OS logo still shows Debian's swirl.** Everything
-  else about branding is confirmed working (device name, OS name,
-  wallpapers, GRUB boot menu, installer launcher) — this is one icon on
-  one page. It survives overwriting every file it could plausibly load
-  (`/etc/os-release`'s `LOGO=`, the `distributor-logo` alternative,
-  `/usr/share/pixmaps/debian-logo.png` directly) and a live `strace -f -e
-  trace=%file` during page load shows **zero file access** for it, and
-  `gresource list /usr/bin/gnome-control-center` (236 entries) has no
-  logo/debian/swirl-named resource either. That rules out every
-  config/file-level override — it's most likely drawn directly in code by
-  one of Debian's `gnome-control-center` patches (see
-  `/usr/libexec/gnome-control-center-set-debian-keyboard` for proof this
-  package is patched downstream). Actually fixing it would mean `apt-get
-  source gnome-control-center`, finding the relevant patch under
-  `debian/patches/`, editing it, and rebuilding the `.deb` for our package
-  list — a real jump in scope for one icon, deliberately deferred.
+- **Settings → About's OS logo.** This one didn't follow `/etc/os-release`'s
+  `LOGO=` key at all — Debian's `gnome-control-center` is built with
+  `-Ddistributor_logo`/`-Ddark_mode_distributor_logo` both pointing at
+  `/usr/share/icons/vendor/scalable/emblems/emblem-vendor.svg` (see
+  `debian/rules` in Debian's packaging at
+  salsa.debian.org/gnome-team/gnome-control-center), which
+  `cc-about-page.c`'s `setup_os_logo()` loads directly via
+  `gtk_picture_set_filename()`, bypassing os-release entirely whenever that
+  compile-time constant is set. `0150-remove-debian-branding.hook.chroot`
+  overwrites that exact file with Vertex's mark now.
