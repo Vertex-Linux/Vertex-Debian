@@ -1,0 +1,11 @@
+PRETTY_NAME="Vertex Linux"
+NAME="Vertex Linux"
+VERSION_ID="1.0"
+VERSION="1.0"
+VERSION_CODENAME=vertex
+ID=vertex
+ID_LIKE=debian
+HOME_URL="https://vertexlinux.example/"
+SUPPORT_URL="https://vertexlinux.example/support"
+BUG_REPORT_URL="https://vertexlinux.example/issues"
+LOGO=vertex-logo

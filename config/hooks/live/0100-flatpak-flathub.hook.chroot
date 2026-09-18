@@ -1,0 +1,6 @@
+#!/bin/sh
+# Add the Flathub remote system-wide so GNOME Software / `flatpak install`
+# work out of the box.
+set -e
+
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo

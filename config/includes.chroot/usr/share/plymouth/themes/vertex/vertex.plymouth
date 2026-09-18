@@ -1,0 +1,17 @@
+[Plymouth Theme]
+Name=Vertex
+Description=Vertex Linux boot splash
+ModuleName=two-step
+
+[two-step]
+ImageDir=/usr/share/plymouth/themes/vertex
+DialogHorizontalAlignment=center
+DialogVerticalAlignment=center
+WatermarkHorizontalAlignment=center
+WatermarkVerticalAlignment=center
+HorizontalAlignment=center
+VerticalAlignment=center
+Transition=none
+TransitionDuration=0.0
+BackgroundStartColor=0x110c22
+BackgroundEndColor=0x2e1065

@@ -1,0 +1,45 @@
+// Vertex Linux default Fastfetch theme.
+// Logo: purple triangle (placeholder brand mark, matches the desktop/installer branding).
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "type": "file",
+        "source": "/usr/share/vertex/fastfetch-logo.txt",
+        "color": {
+            "1": "#4C1D95",
+            "2": "#7C3AED",
+            "3": "#A78BFA"
+        },
+        "padding": {
+            "top": 1,
+            "right": 3
+        }
+    },
+    "display": {
+        "separator": " ➜ ",
+        "color": {
+            "keys": "#A78BFA",
+            "title": "#7C3AED"
+        }
+    },
+    "modules": [
+        "title",
+        "separator",
+        "os",
+        "host",
+        "kernel",
+        "uptime",
+        "packages",
+        "shell",
+        "display",
+        "de",
+        "wm",
+        "terminal",
+        "cpu",
+        "gpu",
+        "memory",
+        "disk",
+        "break",
+        "colors"
+    ]
+}

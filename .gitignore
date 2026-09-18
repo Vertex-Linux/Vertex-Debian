@@ -1,0 +1,10 @@
+# live-build build state
+/binary/
+/chroot/
+/cache/
+/.build/
+/live-image-*.hybrid.iso
+auto/config.bak
+
+# build output
+/out/

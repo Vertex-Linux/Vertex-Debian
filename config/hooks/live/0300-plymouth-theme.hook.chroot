@@ -1,0 +1,10 @@
+#!/bin/sh
+# Make the Vertex Plymouth theme the default boot splash and rebuild the
+# initramfs so it actually gets used.
+set -e
+
+if command -v plymouth-set-default-theme >/dev/null 2>&1; then
+    plymouth-set-default-theme -R vertex
+else
+    update-initramfs -u
+fi

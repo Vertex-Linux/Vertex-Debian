@@ -1,0 +1,7 @@
+[org/gnome/desktop/background]
+picture-uri='file:///usr/share/backgrounds/vertex/wallpaper-1.png'
+picture-uri-dark='file:///usr/share/backgrounds/vertex/wallpaper-1.png'
+picture-options='zoom'
+
+[org/gnome/desktop/screensaver]
+picture-uri='file:///usr/share/backgrounds/vertex/wallpaper-1.png'

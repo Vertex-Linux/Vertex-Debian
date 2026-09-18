@@ -1,0 +1,39 @@
+# Vertex Linux base package selection.
+# Kept deliberately minimal: Debian + latest available GNOME + the two
+# tools explicitly requested (Flatpak, Fastfetch) + a Calamares installer.
+
+# --- Base system / live infrastructure ---
+live-boot
+live-config
+live-config-systemd
+sudo
+network-manager
+firmware-misc-nonfree
+
+# --- Bootloader (UEFI only for now — grub-pc and grub-efi-amd64 Conflict
+# with each other in Debian, so BIOS support is a later iteration) ---
+grub-efi-amd64
+
+# --- Boot splash ---
+plymouth
+plymouth-themes
+
+# --- GNOME desktop (full task metapackage = latest GNOME in this suite) ---
+task-gnome-desktop
+gnome-shell
+gdm3
+
+# --- Requested extras ---
+flatpak
+gnome-software-plugin-flatpak
+fastfetch
+
+# --- GNOME Shell extensions (pre-installed + enabled by default, see the
+# dconf override in includes.chroot/etc/dconf/db/local.d/) ---
+gnome-shell-extension-manager
+gnome-shell-extension-dashtodock
+gnome-shell-extension-blur-my-shell
+
+# --- Installer ---
+calamares
+calamares-settings-debian

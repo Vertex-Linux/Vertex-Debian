@@ -1,0 +1,12 @@
+#!/bin/sh
+# Refresh caches so the Vertex icon/logo and installer launcher show up
+# immediately instead of waiting for the first login to regenerate them.
+set -e
+
+if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+    gtk-update-icon-cache -f /usr/share/icons/hicolor || true
+fi
+
+if command -v update-desktop-database >/dev/null 2>&1; then
+    update-desktop-database /usr/share/applications || true
+fi

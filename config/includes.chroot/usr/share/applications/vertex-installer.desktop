@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Install Vertex Linux
+Comment=Install Vertex Linux to this computer
+Exec=pkexec calamares
+Icon=vertex-logo
+Terminal=false
+StartupNotify=true
+Categories=System;
+X-GNOME-Autostart-enabled=false

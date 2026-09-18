@@ -1,0 +1,2 @@
+- Add our custom updater and package manager
+- Fix the logo in the About section in the settings STILL being the debian logo

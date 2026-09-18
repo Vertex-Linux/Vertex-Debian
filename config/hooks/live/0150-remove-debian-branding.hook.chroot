@@ -1,0 +1,39 @@
+#!/bin/sh
+# Neutralize Debian's own branding without removing the desktop-base
+# package itself — it turns out to be a hard Depends of task-desktop (the
+# shared foundation task-gnome-desktop builds on), so purging it cascades
+# into removing gnome-shell/gdm3/the whole desktop. Instead, strip out just
+# its wallpaper registration and overwrite its logo files in place.
+set -e
+
+# Remove desktop-base's wallpapers + GNOME background-picker registration
+# (dpkg won't mind files disappearing underneath it; this doesn't touch the
+# package database, so task-gnome-desktop's dependency stays satisfied).
+dpkg -L desktop-base 2>/dev/null \
+    | grep -E '/usr/share/backgrounds/|/usr/share/gnome-background-properties/' \
+    | xargs -r rm -f 2>/dev/null || true
+
+# Overwrite Debian's logo/splash pixmaps in place with Vertex's mark, since
+# Debian's gnome-control-center patches (see
+# gnome-control-center-set-debian-keyboard) may check these exact paths
+# directly rather than following os-release's LOGO= key.
+for f in /usr/share/pixmaps/debian-logo.png /usr/share/pixmaps/debian-logo.bmp \
+         /usr/share/plymouth/debian-logo.png; do
+    [ -e "$f" ] && cp /usr/share/pixmaps/vertex-logo.png "$f"
+done
+
+# Classic Debian "distributor-logo" alternative — some tools check this
+# instead of (or in addition to) os-release's LOGO= key.
+update-alternatives --install /usr/share/pixmaps/distributor-logo.png \
+    distributor-logo /usr/share/pixmaps/vertex-logo.png 50 2>/dev/null || true
+
+# calamares-settings-debian ships a generic "Install Debian" launcher
+# alongside our own vertex-installer.desktop — drop every Calamares
+# .desktop file except ours, whatever this one is actually named.
+find /usr/share/applications -maxdepth 1 -iname 'calamares*.desktop' \
+    ! -name 'vertex-installer.desktop' -delete 2>/dev/null || true
+
+# calamares-settings-debian also ships an entire unused "debian" branding
+# component alongside ours — settings.conf already points Calamares at
+# "vertex" so this is inert, but no reason to ship it.
+rm -rf /etc/calamares/branding/debian

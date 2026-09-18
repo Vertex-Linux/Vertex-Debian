@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE wallpapers SYSTEM "gnome-wp-list.dtd">
+<wallpapers>
+  <wallpaper deleted="false">
+    <name>Vertex 1</name>
+    <filename>/usr/share/backgrounds/vertex/wallpaper-1.png</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#4C1D95</pcolor>
+    <scolor>#4C1D95</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>Vertex 2</name>
+    <filename>/usr/share/backgrounds/vertex/wallpaper-2.png</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#4C1D95</pcolor>
+    <scolor>#4C1D95</scolor>
+  </wallpaper>
+  <wallpaper deleted="false">
+    <name>Vertex 3</name>
+    <filename>/usr/share/backgrounds/vertex/wallpaper-3.png</filename>
+    <options>zoom</options>
+    <shade_type>solid</shade_type>
+    <pcolor>#4C1D95</pcolor>
+    <scolor>#4C1D95</scolor>
+  </wallpaper>
+</wallpapers>

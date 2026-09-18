@@ -1,0 +1,6 @@
+#!/bin/sh
+# Compile the dconf overrides shipped in /etc/dconf/db/local.d/ (default
+# background, accent color, favorite apps) into the binary dconf database.
+set -e
+
+dconf update

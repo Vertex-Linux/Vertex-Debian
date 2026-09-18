@@ -1,0 +1,10 @@
+#!/bin/sh
+# Belt-and-braces: make sure the core services are enabled even if a
+# package's systemd preset didn't already do it.
+set -e
+
+for svc in NetworkManager gdm3; do
+    if systemctl list-unit-files "${svc}.service" >/dev/null 2>&1; then
+        systemctl enable "${svc}.service" || true
+    fi
+done
