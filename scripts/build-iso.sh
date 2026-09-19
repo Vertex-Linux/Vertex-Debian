@@ -10,6 +10,11 @@
 #   sudo ./scripts/build-iso.sh              # build with defaults
 #   sudo DEBIAN_SUITE=trixie ./scripts/build-iso.sh   # pin to stable instead
 #   ./scripts/build-iso.sh --clean           # wipe previous build state first
+#
+# If this repo is bind-mounted into a container (see scripts/dev-shell.sh)
+# and you're building as root in there, output ownership gets handed back
+# to uid/gid 1000 at the end. Set HOST_UID/HOST_GID if your host user is
+# something else.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -62,7 +67,8 @@ lb config \
     --firmware-chroot true \
     --firmware-binary true \
     --memtest none \
-    --win32-loader false
+    --win32-loader false \
+    --bootappend-live "boot=live components splash quiet"
 
 echo "==> Building the ISO (this takes a while and needs network access)"
 lb build
@@ -76,4 +82,13 @@ fi
 
 dest="$ROOT/out/${ISO_NAME}-${VERSION}-${ARCH}.iso"
 mv "$built_iso" "$dest"
+
+# This runs as real root inside a container with no user-namespace
+# remapping, so anything it creates through this bind-mounted directory —
+# the ISO, regenerated branding assets, live-build's own state — lands
+# root-owned on the host too. Hand it all back so run-vm.sh and normal
+# editing work without sudo. Override HOST_UID/HOST_GID if your host user
+# isn't uid/gid 1000.
+chown -R "${HOST_UID:-1000}:${HOST_GID:-1000}" "$ROOT"
+
 echo "==> Done: $dest"

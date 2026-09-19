@@ -63,9 +63,16 @@ if [[ -f "$LOGO" ]]; then
     resize "$LOGO" "$CHROOT/etc/calamares/branding/vertex/images/logo.png" "200x200"
     resize "$LOGO" "$CHROOT/etc/calamares/branding/vertex/images/icon.png" "64x64"
 
-    # Plymouth boot splash logo (two-step theme expects "watermark.png")
+    # Plymouth boot splash logo. two-step's *primary* boot visual is the
+    # animation-NNNN.png sequence (confirmed against Debian's own bundled
+    # "spinner" theme, which has no watermark.png at all and relies solely
+    # on animation-*.png + throbber-*.png) — watermark.png alone, which is
+    # what we originally shipped, left two-step with nothing to show during
+    # the main boot phase, hence the unbranded gray/dots fallback. A single
+    # frame is enough since we're not animating.
     mkdir -p "$CHROOT/usr/share/plymouth/themes/vertex"
     resize "$LOGO" "$CHROOT/usr/share/plymouth/themes/vertex/watermark.png" "256x256"
+    resize "$LOGO" "$CHROOT/usr/share/plymouth/themes/vertex/animation-0001.png" "256x256"
 
     # GNOME About / os-logo used by gnome-control-center "About" panel
     mkdir -p "$CHROOT/usr/share/pixmaps"
@@ -171,7 +178,26 @@ picture-options='zoom'
 [org/gnome/desktop/screensaver]
 picture-uri='file://${default_wallpaper}'
 EOF
-    echo "==> Default background set to $default_wallpaper"
+
+    # The GDM greeter (login screen) and lock/shutdown dialogs run as the
+    # "gdm" user with their own separate dconf profile/database — gdm3
+    # ships /etc/dconf/profile/gdm pointing at system-db:gdm by default, so
+    # our override just needs to land in /etc/dconf/db/gdm.d/.
+    mkdir -p "$CHROOT/etc/dconf/profile" "$CHROOT/etc/dconf/db/gdm.d"
+    cat > "$CHROOT/etc/dconf/profile/gdm" <<EOF
+user-db:user
+system-db:gdm
+EOF
+    cat > "$CHROOT/etc/dconf/db/gdm.d/00-vertex-greeter" <<EOF
+[org/gnome/desktop/background]
+picture-uri='file://${default_wallpaper}'
+picture-uri-dark='file://${default_wallpaper}'
+picture-options='zoom'
+
+[org/gnome/login-screen]
+logo='/usr/share/pixmaps/vertex-logo.png'
+EOF
+    echo "==> Default background set to $default_wallpaper (desktop + GDM greeter)"
 fi
 
 echo "==> Done. Assets staged under config/includes.chroot/."

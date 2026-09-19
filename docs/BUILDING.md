@@ -90,6 +90,13 @@ system. Delete that `.qcow2` file to start over with a fresh disk.
   pointing at `/run/live/medium/live/filesystem.squashfs`), then runs the
   usual partition/users/bootloader/locale steps. `settings.conf` defines
   the step sequence; `branding/vertex/` defines the installer's look.
+  Because `unpackfs` clones the *entire* live filesystem verbatim, the
+  final `shellprocess` step (`modules/shellprocess.conf`) cleans up
+  everything that's only relevant to the live session — the installer
+  launcher itself, GDM's live-session autologin config, and the
+  calamares/live-boot/live-config packages — so the installed system
+  doesn't boot straight past the login screen or keep an "Install Vertex
+  Linux" icon around.
 
 ## Known rough edges (fine for now, worth revisiting later)
 
@@ -109,11 +116,28 @@ system. Delete that `.qcow2` file to start over with a fresh disk.
 - No Secure Boot support yet (`grub-efi-amd64` only, unsigned) — add
   `grub-efi-amd64-signed` + `shim-signed` to the package list later if you
   need it.
-- The Plymouth theme only ships a static watermark logo (no custom
-  spinner/progress art) — the `two-step` plugin still animates a default
-  throbber; add `throbber-*.png` frames to
-  `config/includes.chroot/usr/share/plymouth/themes/vertex/` for a fully
-  custom one.
+- **Plymouth boot screen shows an unbranded gray/dots fallback**, on both
+  QEMU and real hardware (tested on a Lenovo ThinkPad E14). Everything
+  checkable from the outside is confirmed correct: `Theme=vertex` is set
+  in `plymouthd.conf` on both the root filesystem *and* baked into the
+  initramfs itself; the theme's files (including an `animation-0001.png`
+  frame — `two-step`'s primary boot visual, confirmed by comparing against
+  Debian's own bundled `spinner` theme, which has no `watermark.png` at all
+  and relies solely on `animation-*.png`/`throbber-*.png`) are present in
+  the initramfs; the kernel command line correctly has `splash quiet`
+  (`/etc/default/grub` and `scripts/build-iso.sh`'s `--bootappend-live`);
+  and `plymouthd`/`plymouth show-splash` both exit with `status=0/SUCCESS`
+  in the boot log with no errors. So Plymouth is genuinely choosing to
+  render in a degraded fallback mode rather than failing outright — likely
+  a DRM/KMS renderer availability issue at the point Plymouth actually
+  runs (early boot, before the full desktop's graphics stack is up),
+  though `/dev/dri/card0` and a real framebuffer (`virtio_gpudrmfb` in the
+  VM case) are confirmed present once the system finishes booting, so it's
+  specifically a *timing* question, not a missing-driver one. Deliberately
+  parked here rather than chased further — it's cosmetic only, and the
+  next real step is booting with `plymouth.debug` on the kernel command
+  line and reading `/var/log/plymouth-debug.log` for Plymouth's own
+  internal reasoning, which needs a full rebuild+boot cycle to get.
 - **Settings → About's OS logo.** This one didn't follow `/etc/os-release`'s
   `LOGO=` key at all — Debian's `gnome-control-center` is built with
   `-Ddistributor_logo`/`-Ddark_mode_distributor_logo` both pointing at

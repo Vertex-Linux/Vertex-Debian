@@ -2,24 +2,29 @@
 # Neutralize Debian's own branding without removing the desktop-base
 # package itself — it turns out to be a hard Depends of task-desktop (the
 # shared foundation task-gnome-desktop builds on), so purging it cascades
-# into removing gnome-shell/gdm3/the whole desktop. Instead, strip out just
-# its wallpaper registration and overwrite its logo files in place.
+# into removing gnome-shell/gdm3/the whole desktop. Instead, strip out every
+# asset it ships (wallpapers, GDM/shutdown-screen art, logos) and overwrite
+# the specific paths other components read directly.
 set -e
 
-# Remove desktop-base's wallpapers + GNOME background-picker registration
-# (dpkg won't mind files disappearing underneath it; this doesn't touch the
-# package database, so task-gnome-desktop's dependency stays satisfied).
+# Delete every image asset desktop-base ships, system-wide — wallpapers,
+# GDM/login-screen backgrounds, shutdown-dialog art, splash themes, logos,
+# all of it (dpkg won't mind files disappearing underneath it; this doesn't
+# touch the package database, so task-gnome-desktop's dependency stays
+# satisfied). We don't rely on any of it; specific paths other components
+# read directly are recreated with Vertex's own art right after.
 dpkg -L desktop-base 2>/dev/null \
-    | grep -E '/usr/share/backgrounds/|/usr/share/gnome-background-properties/' \
+    | grep -E '\.(png|svg|jpe?g|xpm|gif)$' \
     | xargs -r rm -f 2>/dev/null || true
 
-# Overwrite Debian's logo/splash pixmaps in place with Vertex's mark, since
-# Debian's gnome-control-center patches (see
-# gnome-control-center-set-debian-keyboard) may check these exact paths
-# directly rather than following os-release's LOGO= key.
+# Recreate the specific paths known to be read directly elsewhere (GDM
+# greeter's own background is handled separately via its dconf profile,
+# below), now with Vertex's mark instead of Debian's.
+mkdir -p /usr/share/pixmaps /usr/share/plymouth
 for f in /usr/share/pixmaps/debian-logo.png /usr/share/pixmaps/debian-logo.bmp \
          /usr/share/plymouth/debian-logo.png; do
-    [ -e "$f" ] && cp /usr/share/pixmaps/vertex-logo.png "$f"
+    rm -f "$f"
+    cp /usr/share/pixmaps/vertex-logo.png "$f"
 done
 
 # The Settings "About" page's OS logo is the one exception LOGO= doesn't
@@ -30,6 +35,11 @@ done
 # entirely. Overwrite it in place with Vertex's mark (kept as an actual SVG
 # since that's the format gnome-control-center expects here).
 mkdir -p /usr/share/icons/vendor/scalable/emblems
+# This path is Debian's update-alternatives-managed "vendor" icon theme —
+# the alternative symlink itself is untouched, but its target was one of
+# the files just deleted above, leaving it dangling. cp refuses to write
+# through a dangling symlink, so drop it first and write a real file.
+rm -f /usr/share/icons/vendor/scalable/emblems/emblem-vendor.svg
 cp /usr/share/vertex/vertex-mark.svg \
     /usr/share/icons/vendor/scalable/emblems/emblem-vendor.svg
 
