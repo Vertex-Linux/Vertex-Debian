@@ -1,4 +1,4 @@
-- Make a new custom package manager with VertexPKG Support for this new Debian baised OS
+- Remake VPKG with APT Support for this new Debian baised OS
 - Port the updater and driver manager to Vertex Debian
 
 # Important Fixes:
