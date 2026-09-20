@@ -6,9 +6,9 @@
         "type": "file",
         "source": "/usr/share/vertex/fastfetch-logo.txt",
         "color": {
-            "1": "#4C1D95",
-            "2": "#7C3AED",
-            "3": "#A78BFA"
+            "1": "38;2;76;29;149",
+            "2": "38;2;124;58;237",
+            "3": "38;2;167;139;250"
         },
         "padding": {
             "top": 1,
@@ -18,8 +18,8 @@
     "display": {
         "separator": " ➜ ",
         "color": {
-            "keys": "#A78BFA",
-            "title": "#7C3AED"
+            "keys": "38;2;167;139;250",
+            "title": "38;2;124;58;237"
         }
     },
     "modules": [

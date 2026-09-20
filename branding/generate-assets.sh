@@ -9,6 +9,7 @@
 #
 # Expected source files (all PNG, transparent background where noted):
 #   logo.png          - square logo/mark, transparent bg, >=1024x1024
+#   pfp.png            - square user avatar/profile picture, >=512x512
 #   wallpaper-1.png    - desktop background, >=1920x1080 (becomes the default)
 #   wallpaper-2.png    - desktop background, >=1920x1080
 #   wallpaper-3.png    - desktop background, >=1920x1080
@@ -125,6 +126,23 @@ EOF
     echo "==> Generated GRUB splash.svg from logo.png"
 else
     echo "==> Skipping logo.png (not found in $SOURCES)"
+fi
+
+# ---------------------------------------------------------------------------
+# Profile picture -> default user avatar (seeded once via /etc/skel/.face,
+# so new accounts start with it but can freely change it afterward — never
+# re-applied after account creation) + AccountsService's icon cache (so
+# GDM's greeter avatar picker shows it immediately too, not just apps that
+# read ~/.face directly).
+# ---------------------------------------------------------------------------
+PFP="$SOURCES/pfp.png"
+if [[ -f "$PFP" ]]; then
+    echo "==> Processing pfp.png"
+    mkdir -p "$CHROOT/etc/skel" "$CHROOT/usr/share/vertex"
+    resize "$PFP" "$CHROOT/etc/skel/.face" "512x512"
+    cp "$CHROOT/etc/skel/.face" "$CHROOT/usr/share/vertex/face.png"
+else
+    echo "==> Skipping pfp.png (not found in $SOURCES)"
 fi
 
 # ---------------------------------------------------------------------------
