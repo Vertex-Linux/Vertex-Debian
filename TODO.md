@@ -3,4 +3,3 @@
 
 # Important Fixes:
 - Fix the plymouth bootscreen still being the gray screen with 3 dots
-- Find where the defualt PFP is held and change it
