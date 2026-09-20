@@ -84,13 +84,22 @@ if [[ -f "$LOGO" ]]; then
     # that keeps them pixel-matched to logo.png instead of a hand-drawn
     # approximation, and they regenerate automatically whenever you replace
     # logo.png and rerun this script.
+    #
+    # The SVG's declared width/height is set to 192 (not the embedded PNG's
+    # actual resolution) to match the AdwClamp maximum-size gnome-control-
+    # center's cc-about-page.ui wraps this logo in — its GtkPicture has
+    # can-shrink="false", so it refuses to shrink below whatever size the
+    # SVG itself declares, ignoring the clamp entirely if the SVG claims to
+    # be bigger. The embedded PNG stays rendered at 512x512 internally for
+    # crispness on HiDPI displays; only the outer <svg>/<image> tags' stated
+    # size changed.
     mkdir -p "$CHROOT/usr/share/vertex"
     tmp_mark="$(mktemp --suffix=.png)"
     "${CONVERT[@]}" "$LOGO" -resize "512x512" -strip "$tmp_mark"
     b64_mark="$(base64 -w0 "$tmp_mark")"
     cat > "$CHROOT/usr/share/vertex/vertex-mark.svg" <<EOF
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <image width="512" height="512" href="data:image/png;base64,${b64_mark}"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <image width="192" height="192" href="data:image/png;base64,${b64_mark}"/>
 </svg>
 EOF
     rm -f "$tmp_mark"
@@ -188,14 +197,19 @@ EOF
 user-db:user
 system-db:gdm
 EOF
+    # NOTE: org.gnome.login-screen's "logo" key was removed here — the
+    # installed system's login screen never showed a login prompt at all
+    # (just the background + top bar), and this custom key is the prime
+    # suspect: it's a far less commonly used/battle-tested customization
+    # than the background override, and a JS exception while gnome-shell's
+    # greeter tries to load it could plausibly crash just the login-form
+    # widget construction while the rest of the shell keeps running.
+    # Testing with it removed before considering it confirmed.
     cat > "$CHROOT/etc/dconf/db/gdm.d/00-vertex-greeter" <<EOF
 [org/gnome/desktop/background]
 picture-uri='file://${default_wallpaper}'
 picture-uri-dark='file://${default_wallpaper}'
 picture-options='zoom'
-
-[org/gnome/login-screen]
-logo='/usr/share/pixmaps/vertex-logo.png'
 EOF
     echo "==> Default background set to $default_wallpaper (desktop + GDM greeter)"
 fi

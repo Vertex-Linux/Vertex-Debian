@@ -27,7 +27,7 @@ Debian VM or container works fine).
 # 1. On a Debian box:
 sudo apt install live-build qemu-system-x86 ovmf imagemagick
 
-# 2. Build the ISO (defaults to Debian testing, for the newest GNOME)
+# 2. Build the ISO (defaults to Debian stable)
 sudo ./scripts/build-iso.sh
 
 # 3. Boot it in a VM
@@ -55,8 +55,11 @@ etc. to add more presets to the GNOME background picker.
 
 ## Design choices worth knowing about
 
-- **Base suite**: `DEBIAN_SUITE=testing` by default (tracks the newest GNOME
-  Debian packages); set `DEBIAN_SUITE=trixie` for the stable release or
+- **Base suite**: `DEBIAN_SUITE=trixie` (stable) by default. `testing` would
+  track the newest GNOME, but as of GDM 50 that ships a confirmed upstream
+  regression that breaks the login screen entirely — see "Known rough
+  edges" in [`docs/BUILDING.md`](docs/BUILDING.md). Set
+  `DEBIAN_SUITE=testing` to go back to bleeding-edge GNOME anyway, or
   `sid` for unstable. See [`scripts/build-iso.sh`](scripts/build-iso.sh).
 - **Installer**: [Calamares](https://calamares.io/) — the de facto standard
   independent Linux installer today (used by KDE neon, EndeavourOS,

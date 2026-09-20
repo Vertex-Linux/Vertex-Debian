@@ -34,8 +34,10 @@ sudo ./scripts/build-iso.sh
 What this does:
 1. Regenerates branding assets.
 2. Runs `lb config` to set up a live-build project targeting Debian
-   `testing` (override with `DEBIAN_SUITE=trixie` or `DEBIAN_SUITE=sid`),
-   with GNOME's full desktop task, Flatpak, Fastfetch, and Calamares in the
+   `trixie` (stable) by default — override with `DEBIAN_SUITE=testing` for
+   newer GNOME (but see "Known rough edges" below first) or
+   `DEBIAN_SUITE=sid` for unstable — with GNOME's full desktop task,
+   Flatpak, Fastfetch, and Calamares in the
    package list, `iso-hybrid` output (boots from USB or optical media,
    UEFI only for now — see "Known rough edges" below), and no
    `debian-installer` (Calamares replaces it).
@@ -138,6 +140,39 @@ system. Delete that `.qcow2` file to start over with a fresh disk.
   next real step is booting with `plymouth.debug` on the kernel command
   line and reading `/var/log/plymouth-debug.log` for Plymouth's own
   internal reasoning, which needs a full rebuild+boot cycle to get.
+- **GDM 50's login screen doesn't show a user list at all** on
+  `DEBIAN_SUITE=testing` (this is *why* the default is `trixie` — see
+  above). After a fresh Calamares install, instead of a normal login
+  prompt you get dropped into a full graphical session under GDM's own
+  internal `gdm-greeter` service account (visible via `getent passwd
+  60578`-style dynamic UIDs, `/run/gdm3/home/gdm-greeter` as its home,
+  and `/sbin/nologin` as its shell) — locking the screen then prompts to
+  re-authenticate as "GDM Greeter" itself, which always fails since it
+  has no real password. This is a **confirmed upstream GDM 50 regression**
+  (see the Arch Linux bug report "[SOLVED] After GNOME 50 Update — GDM
+  bypasses login-greeter"), not a bug in this project's config. Ruled out
+  before concluding that, in order: `gnome-initial-setup` not being
+  purged (it was, no change); a dangling `AutomaticLogin=` target in
+  `/etc/gdm3/daemon.conf` *or* `/var/lib/gdm3/.config/gdm/custom.conf`
+  (neither file has one; the latter doesn't even exist); our custom
+  `org.gnome.login-screen` `logo` dconf key crashing greeter UI
+  construction (removed it, no change); `/var/lib/AccountsService/users/`
+  being empty even though `busctl call org.freedesktop.Accounts
+  /org/freedesktop/Accounts org.freedesktop.Accounts ListCachedUsers`
+  correctly lists the account live (pre-seeded the cache file in
+  `config/includes.chroot/etc/calamares/modules/shellprocess.conf`
+  anyway — cheap and still worth keeping even though it didn't fix this
+  — note that module's variable-naming gotcha documented inline: its
+  script strings are pre-scanned for any `$word` pattern, including
+  positional parameters like `$1`, and treated as an undefined Calamares
+  GlobalStorage placeholder unless avoided by using `$(...)` command
+  substitution inline instead of storing values in any variable); and
+  `/usr/share/gdm/generate-config` (Debian's own greeter-dconf-defaults
+  compiler) producing a corrupt result (confirmed fine — it compiles from
+  `/usr/share/gdm/dconf`, an entirely separate lockdown-settings mechanism
+  from our own `/etc/dconf/db/gdm.d/` customization, and isn't the
+  cause). Should GDM ship a fix upstream, `DEBIAN_SUITE=testing` is worth
+  retrying.
 - **Settings → About's OS logo.** This one didn't follow `/etc/os-release`'s
   `LOGO=` key at all — Debian's `gnome-control-center` is built with
   `-Ddistributor_logo`/`-Ddark_mode_distributor_logo` both pointing at

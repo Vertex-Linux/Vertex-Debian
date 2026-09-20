@@ -20,9 +20,14 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-# "testing" tracks whatever GNOME release is currently newest in Debian;
-# switch to "trixie" for the stable release instead, or "sid" for unstable.
-DEBIAN_SUITE="${DEBIAN_SUITE:-testing}"
+# Default to Debian's stable release. "testing" tracks whatever GNOME is
+# currently newest, but as of GDM 50 that means shipping a confirmed
+# upstream regression (GDM's greeter fails to show the user list at all,
+# dropping straight into its own internal service account — see
+# docs/BUILDING.md's "Known rough edges" for the full investigation and
+# links). Set DEBIAN_SUITE=testing to go back to bleeding-edge GNOME (and
+# hit that bug), or DEBIAN_SUITE=sid for unstable.
+DEBIAN_SUITE="${DEBIAN_SUITE:-trixie}"
 ARCH="${ARCH:-amd64}"
 ISO_NAME="vertex-linux"
 VERSION="$(cat "$ROOT/VERSION" 2>/dev/null || echo "1.0")"
@@ -31,6 +36,15 @@ if [[ "${1:-}" == "--clean" ]]; then
     echo "==> Cleaning previous live-build state"
     lb clean --purge || true
     rm -rf "$ROOT"/{binary,chroot,cache,.build} 2>/dev/null || true
+    # lb clean --purge does NOT reset these — they're lb config's own
+    # saved settings from the first time it ever ran here (distribution,
+    # architecture, etc.), and lb config treats their existence as "already
+    # configured," silently skipping a real reconfiguration even when you
+    # pass different flags. Confirmed: switching DEBIAN_SUITE from testing
+    # to trixie had zero effect across multiple --clean rebuilds until
+    # these were removed too — every one of those builds silently kept
+    # using the suite from the very first `lb config` call ever made here.
+    rm -f "$ROOT"/config/{bootstrap,chroot,binary,common,source} 2>/dev/null || true
     shift
 fi
 
