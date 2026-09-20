@@ -20,11 +20,11 @@ strings:
     versionedName:        "Vertex Linux 1.0"
     shortVersionedName:   "Vertex 1.0"
     bootloaderEntryName:  "Vertex Linux"
-    productUrl:           "https://vertexlinux.example/"
-    supportUrl:           "https://vertexlinux.example/support"
-    knownIssuesUrl:       "https://vertexlinux.example/issues"
-    releaseNotesUrl:      "https://vertexlinux.example/releases"
-    donateUrl:            "https://vertexlinux.example/donate"
+    productUrl:           "https://vertex.arc360hub.com/"
+    supportUrl:           "https://vertex.arc360hub.com/"
+    knownIssuesUrl:       "https://vertex.arc360hub.com/"
+    releaseNotesUrl:      "https://vertex.arc360hub.com/"
+    donateUrl:            "https://vertex.arc360hub.com/"
 
 images:
     productLogo:          "images/logo.png"
