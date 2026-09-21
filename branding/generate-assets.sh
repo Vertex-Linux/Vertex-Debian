@@ -8,8 +8,10 @@
 # scripts/build-iso.sh.
 #
 # Expected source files (all PNG, transparent background where noted):
-#   logo.png          - square logo/mark, transparent bg, >=1024x1024
+#   logo.png           - square logo/mark, transparent bg, >=1024x1024
 #   pfp.png            - square user avatar/profile picture, >=512x512
+#   vertex-update.png  - Vertex Updater app icon, transparent bg, >=512x512
+#   vertex-driver.png  - Vertex Driver Downloader app icon, ditto
 #   wallpaper-1.png    - desktop background, >=1920x1080 (becomes the default)
 #   wallpaper-2.png    - desktop background, >=1920x1080
 #   wallpaper-3.png    - desktop background, >=1920x1080
@@ -144,6 +146,29 @@ if [[ -f "$PFP" ]]; then
 else
     echo "==> Skipping pfp.png (not found in $SOURCES)"
 fi
+
+# ---------------------------------------------------------------------------
+# App icons for the two launcher-accessible custom apps (VPKG is CLI-only,
+# no icon needed) -> hicolor icon theme, so their .desktop files' Icon=
+# resolves by name like any other installed app. update-vertex-apps.sh
+# references these exact icon names.
+# ---------------------------------------------------------------------------
+ICON_SIZES=(16 22 24 32 48 64 128 256 512)
+for pair in "vertex-update.png:vertex-update" "vertex-driver.png:vertex-driver"; do
+    src_name="${pair%%:*}"
+    icon_name="${pair##*:}"
+    src="$SOURCES/$src_name"
+    if [[ -f "$src" ]]; then
+        echo "==> Processing $src_name"
+        for size in "${ICON_SIZES[@]}"; do
+            dest_dir="$CHROOT/usr/share/icons/hicolor/${size}x${size}/apps"
+            mkdir -p "$dest_dir"
+            resize "$src" "$dest_dir/$icon_name.png" "${size}x${size}"
+        done
+    else
+        echo "==> Skipping $src_name (not found in $SOURCES)"
+    fi
+done
 
 # ---------------------------------------------------------------------------
 # Wallpapers -> /usr/share/backgrounds/vertex + GNOME background picker XML

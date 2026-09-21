@@ -1,6 +1,8 @@
 # Vertex Linux base package selection.
-# Kept deliberately minimal: Debian + latest available GNOME + the two
-# tools explicitly requested (Flatpak, Fastfetch) + a Calamares installer.
+# Kept deliberately minimal: Debian + latest available GNOME + Flatpak +
+# Fastfetch + Calamares + whatever update-vertex-apps.sh needs to fetch
+# Vertex's own tools (VPKG, Vertex Updater, Vertex Driver Downloader) at
+# build time.
 
 # --- Base system / live infrastructure ---
 live-boot
@@ -27,6 +29,11 @@ gdm3
 flatpak
 gnome-software-plugin-flatpak
 fastfetch
+
+# --- Needed by update-vertex-apps.sh (fetches VPKG / Vertex Updater /
+# Vertex Driver Downloader from GitHub releases; python3 comes in via
+# GNOME already, curl doesn't) ---
+curl
 
 # --- GNOME Shell extensions (pre-installed + enabled by default, see the
 # dconf override in includes.chroot/etc/dconf/db/local.d/) ---

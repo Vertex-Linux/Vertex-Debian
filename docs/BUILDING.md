@@ -84,9 +84,22 @@ system. Delete that `.qcow2` file to start over with a fresh disk.
   Fastfetch config, GNOME dconf defaults, and Calamares config live.
 - **`config/hooks/live/*.hook.chroot`** — shell scripts run inside the
   chroot near the end of the build, in filename order: adding the Flathub
-  remote, compiling the dconf database, activating the Plymouth theme and
-  rebuilding the initramfs, refreshing icon/desktop caches, and enabling
-  core services.
+  remote, installing Vertex's own tools (see below), removing Debian
+  branding, compiling the dconf database, activating the Plymouth theme
+  and rebuilding the initramfs, refreshing icon/desktop caches, and
+  enabling core services.
+- **`config/includes.chroot/usr/local/sbin/update-vertex-apps.sh`** —
+  fetches VPKG, Vertex Updater, and Vertex Driver Downloader straight from
+  their GitHub releases (`Vertex-Linux/vertex-tools` for the first two,
+  distinguished only by tag naming — `vpkg-<version>` vs `<version>-vu` —
+  and `Vertex-Linux/vertex-graphics-installer` for the third), strips the
+  Rust target-triple suffix from the downloaded binaries so they run as
+  plain `vpkg`/`vertex-update`/`vertex-drivers`, and creates `.desktop`
+  launchers for the latter two if they don't already exist. Run once at
+  build time by `0120-install-vertex-apps.hook.chroot`, but it also ships
+  in the image itself at that same path — since none of these are apt
+  packages, re-running it later (by hand, or eventually from within Vertex
+  Updater itself) is the actual update mechanism for all three.
 - **`config/includes.chroot/etc/calamares/`** — Calamares installs by
   copying the live squashfs onto the target disk (`unpackfs` module
   pointing at `/run/live/medium/live/filesystem.squashfs`), then runs the

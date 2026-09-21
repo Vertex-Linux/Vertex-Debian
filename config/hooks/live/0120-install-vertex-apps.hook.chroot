@@ -1,0 +1,10 @@
+#!/bin/sh
+# Installs Vertex Linux's own custom tools (VPKG, Vertex Updater, Vertex
+# Driver Downloader) by running the actual update script that ships in the
+# image at /usr/local/sbin/update-vertex-apps.sh — same script users (or
+# the Vertex Updater app itself) can re-run later to update these tools,
+# since they aren't apt packages.
+set -e
+
+chmod +x /usr/local/sbin/update-vertex-apps.sh
+/usr/local/sbin/update-vertex-apps.sh
