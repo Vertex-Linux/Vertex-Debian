@@ -186,13 +186,3 @@ system. Delete that `.qcow2` file to start over with a fresh disk.
   from our own `/etc/dconf/db/gdm.d/` customization, and isn't the
   cause). Should GDM ship a fix upstream, `DEBIAN_SUITE=testing` is worth
   retrying.
-- **Settings → About's OS logo.** This one didn't follow `/etc/os-release`'s
-  `LOGO=` key at all — Debian's `gnome-control-center` is built with
-  `-Ddistributor_logo`/`-Ddark_mode_distributor_logo` both pointing at
-  `/usr/share/icons/vendor/scalable/emblems/emblem-vendor.svg` (see
-  `debian/rules` in Debian's packaging at
-  salsa.debian.org/gnome-team/gnome-control-center), which
-  `cc-about-page.c`'s `setup_os_logo()` loads directly via
-  `gtk_picture_set_filename()`, bypassing os-release entirely whenever that
-  compile-time constant is set. `0150-remove-debian-branding.hook.chroot`
-  overwrites that exact file with Vertex's mark now.
